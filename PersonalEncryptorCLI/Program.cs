@@ -25,8 +25,35 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
                     if (Directory.Exists(opts.OutputPath) == false)
                         Directory.CreateDirectory(opts.OutputPath);
                 }
-                
-                // TODO: Check for existing Keys in Output location = prompt for overwrite!
+
+                if (KeysExist(opts.Name, opts.OutputPath))
+                {
+                    bool? overwrite = null;
+
+                    do
+                    {
+                        Console.WriteLine("One or more keys of the same name already exist in the specified location, Overwrite? (Y/N)");
+
+                        var shouldOverwrite = Console.ReadLine();
+
+                        switch (shouldOverwrite)
+                        {
+                            case "Y":
+                            case "y":
+                                overwrite = true;
+                                break;
+                            case "N":
+                            case "n":
+                                overwrite = false;
+                                break;
+                        }
+
+                    } while (overwrite.HasValue == false);
+
+                    if (overwrite.Value == false)
+                        return 0;
+                }
+
 
                 var rsa = new RSAWithRSAParameterKey();
 
@@ -40,8 +67,20 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
                 return 1;
             }
-            
+
             return 0;
+        }
+
+        private static bool KeysExist(string keyName, string outputPath)
+        {
+            var keysExist = false;
+            if (File.Exists(Path.Combine(outputPath, $"{keyName}PublicKey.xml")))
+                keysExist = true;
+
+            if (File.Exists(Path.Combine(outputPath, $"{keyName}PrivateKey.xml")))
+                keysExist = true;
+
+            return keysExist;
         }
     }
 }

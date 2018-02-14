@@ -5,9 +5,6 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 {
     public class RSAWithRSAParameterKey
     {
-        //private RSAParameters _publicKey;
-        //private RSAParameters _privateKey;
-
         public void GenerateKeyPair(int keyLength, string keyPrefix, string outputLocation)
         {
             using (var rsa = new RSACryptoServiceProvider(keyLength))
@@ -22,35 +19,37 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
             }
         }
 
-        //public byte[] EncryptData(byte[] dataToEncrypt)
-        //{
-        //    byte[] cipherbytes;
+        public byte[] EncryptData(byte[] dataToEncrypt, int keyLength, string pathToPublicKey)
+        {
+            byte[] cipherbytes;
 
-        //    using (var rsa = new RSACryptoServiceProvider(2048))
-        //    {
-        //        rsa.PersistKeyInCsp = false;                
-        //        rsa.ImportParameters(_publicKey);
+            using (var rsa = new RSACryptoServiceProvider(keyLength))
+            {
+                rsa.PersistKeyInCsp = false;
 
+                var publicKey = File.ReadAllText(pathToPublicKey);
 
-        //        cipherbytes = rsa.Encrypt(dataToEncrypt, false);
-        //    }
+                rsa.FromXmlString(publicKey);
 
-        //    return cipherbytes;
-        //}
+                cipherbytes = rsa.Encrypt(dataToEncrypt, false);
+            }
 
-        //public byte[] DecryptData(byte[] dataToEncrypt)
-        //{
-        //    byte[] plain;
+            return cipherbytes;
+        }
 
-        //    using (var rsa = new RSACryptoServiceProvider(2048))
-        //    {
-        //        rsa.PersistKeyInCsp = false;
-                                
-        //        rsa.ImportParameters(_privateKey);
-        //        plain = rsa.Decrypt(dataToEncrypt, false);
-        //    }
+        public byte[] DecryptData(byte[] dataToEncrypt, int keyLength, string pathToPrivateKey)
+        {
+            byte[] plain;
 
-        //    return plain;
-        //}
+            using (var rsa = new RSACryptoServiceProvider(keyLength))
+            {
+                rsa.PersistKeyInCsp = false;
+
+                rsa.FromXmlString(pathToPrivateKey);
+                plain = rsa.Decrypt(dataToEncrypt, false);
+            }
+
+            return plain;
+        }
     }
 }

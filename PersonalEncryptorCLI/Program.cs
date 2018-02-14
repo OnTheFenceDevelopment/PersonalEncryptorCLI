@@ -2,6 +2,8 @@
 using OnTheFenceDevelopment.PersonalEncryptorCLI.Options;
 using CommandLine;
 using System.IO;
+using System.Text;
+using Newtonsoft.Json;
 
 namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 {
@@ -9,11 +11,29 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
     {
         static int Main(string[] args)
         {
-            return Parser.Default.ParseArguments<GenerateKeyOptions>(args)
+            return Parser.Default.ParseArguments<GenerateKeyOptions, EncryptTextOptions>(args)
                 .MapResult(
                     (GenerateKeyOptions opts) => GenerateKeyPair(opts),
+                    (EncryptTextOptions opts) => EncryptText(opts),
                     errs => 1);
         }
+
+        static int EncryptText(EncryptTextOptions opts)
+        {
+            var encryptor = new RSAWithRSAParameterKey();
+            var digitalSigner = new DigitalSignature();
+
+            var hybrid = new HybridEncryption();
+
+            var foo = hybrid.EncryptData(Encoding.ASCII.GetBytes(opts.Text), opts.KeyBitLength, encryptor, digitalSigner, opts.RecipientKeyPath, opts.SenderKeyPath);
+
+            var serializedPacket = JsonConvert.SerializeObject(foo);
+
+            File.WriteAllText(opts.OutputPath, serializedPacket);
+
+            return 0;
+        }
+
         static int GenerateKeyPair(GenerateKeyOptions opts)
         {
             try

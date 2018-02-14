@@ -1,28 +1,19 @@
-﻿using System.Security.Cryptography;
+﻿using System.IO;
+using System.Security.Cryptography;
 
-namespace CryptographyInDotNet
+namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 {
     public class DigitalSignature
     {
-        private RSAParameters _publicKey;
-        private RSAParameters _privateKey;
-
-        public void AssignNewKey()
+        public byte[] SignData(byte[] hashOfDataToSign, int keyLength, string pathToPrivateKey)
         {
-            using (var rsa = new RSACryptoServiceProvider(2048))
-            {                
-                rsa.PersistKeyInCsp = false;               
-                _publicKey = rsa.ExportParameters(false);
-                _privateKey = rsa.ExportParameters(true);                
-            }
-        }
-
-        public byte[] SignData(byte[] hashOfDataToSign)
-        {
-            using (var rsa = new RSACryptoServiceProvider(2048))
+            using (var rsa = new RSACryptoServiceProvider(keyLength))
             {
                 rsa.PersistKeyInCsp = false;
-                rsa.ImportParameters(_privateKey);
+
+                var privateKey = File.ReadAllText(pathToPrivateKey);
+
+                rsa.FromXmlString(privateKey);
                 
                 var rsaFormatter = new RSAPKCS1SignatureFormatter(rsa);                
                 rsaFormatter.SetHashAlgorithm("SHA256");
@@ -31,11 +22,11 @@ namespace CryptographyInDotNet
             }
         }
 
-        public bool VerifySignature(byte[] hashOfDataToSign, byte[] signature)
+        public bool VerifySignature(byte[] hashOfDataToSign, byte[] signature, int keyLength, string pathToPublicKey)
         {
-            using (var rsa = new RSACryptoServiceProvider(2048))
+            using (var rsa = new RSACryptoServiceProvider(keyLength))
             {
-                rsa.ImportParameters(_publicKey);
+                rsa.FromXmlString(pathToPublicKey);
 
                 var rsaDeformatter = new RSAPKCS1SignatureDeformatter(rsa);
                 rsaDeformatter.SetHashAlgorithm("SHA256");

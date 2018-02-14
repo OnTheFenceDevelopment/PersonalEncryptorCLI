@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Security.Cryptography;
 
-namespace CryptographyInDotNet
+namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 {
 public class AesEncryption 
 {

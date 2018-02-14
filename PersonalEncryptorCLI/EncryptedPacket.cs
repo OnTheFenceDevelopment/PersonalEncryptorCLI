@@ -1,4 +1,4 @@
-﻿namespace CryptographyInDotNet
+﻿namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 {
     public class EncryptedPacket
     {

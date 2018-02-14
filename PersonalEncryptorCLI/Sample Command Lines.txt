@@ -1,0 +1,5 @@
+﻿generatekeys --name Gina --output C:\Users\Dave\MyKeys
+
+encrypttext --text "This is a test message" --senderkeypath C:\Users\Dave\MyKeys\DavesPrivateKey.xml --recipientkeypath C:\Users\Dave\MyKeys\GinaPublicKey.xml --output C:\Users\Dave\MyData\Text.json
+
+decrypttext --pathtopacket C:\Users\Dave\MyData\Text.json --senderkeypath C:\Users\Dave\MyKeys\DavesPublicKey.xml --recipientkeypath C:\Users\Dave\MyKeys\GinaPrivateKey.xml --output C:\Users\Dave\MyData\Text.txt

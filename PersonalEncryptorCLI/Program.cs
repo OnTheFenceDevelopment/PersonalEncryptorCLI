@@ -21,6 +21,9 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
         static int EncryptText(EncryptTextOptions opts)
         {
+            // TODO: Need to validate Paths before proceeding
+
+
             var encryptor = new RSAWithRSAParameterKey();
             var digitalSigner = new DigitalSignature();
 
@@ -37,6 +40,9 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
         static int DecryptText(DecryptTextOptions opts)
         {
+            // TODO: Need to validate Paths before proceeding
+
+
             var encryptor = new RSAWithRSAParameterKey();
             var digitalSigner = new DigitalSignature();
 

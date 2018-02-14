@@ -60,6 +60,7 @@
     <Compile Include="DigitalSignature.cs" />
     <Compile Include="EncryptedPacket.cs" />
     <Compile Include="HybridEncryption.cs" />
+    <Compile Include="Options\DecryptTextOptions.cs" />
     <Compile Include="Options\EncryptTextOptions.cs" />
     <Compile Include="Options\GenerateKeyOptions.cs" />
     <Compile Include="Program.cs" />
@@ -69,6 +70,9 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Sample Command Lines.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

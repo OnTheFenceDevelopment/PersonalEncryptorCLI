@@ -45,7 +45,8 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
             {
                 rsa.PersistKeyInCsp = false;
 
-                rsa.FromXmlString(pathToPrivateKey);
+                var privateKey = File.ReadAllText(pathToPrivateKey);
+                rsa.FromXmlString(privateKey);
                 plain = rsa.Decrypt(dataToEncrypt, false);
             }
 

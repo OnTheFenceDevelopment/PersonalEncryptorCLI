@@ -11,10 +11,11 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
     {
         static int Main(string[] args)
         {
-            return Parser.Default.ParseArguments<GenerateKeyOptions, EncryptTextOptions>(args)
+            return Parser.Default.ParseArguments<GenerateKeyOptions, EncryptTextOptions, DecryptTextOptions>(args)
                 .MapResult(
                     (GenerateKeyOptions opts) => GenerateKeyPair(opts),
                     (EncryptTextOptions opts) => EncryptText(opts),
+                    (DecryptTextOptions opts) => DecryptText(opts),
                     errs => 1);
         }
 
@@ -30,6 +31,25 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
             var serializedPacket = JsonConvert.SerializeObject(foo);
 
             File.WriteAllText(opts.OutputPath, serializedPacket);
+
+            return 0;
+        }
+
+        static int DecryptText(DecryptTextOptions opts)
+        {
+            var encryptor = new RSAWithRSAParameterKey();
+            var digitalSigner = new DigitalSignature();
+
+            var hybrid = new HybridEncryption();
+
+            var encryptedPacketText = File.ReadAllText(opts.EncryptedPacketPath);
+            var encryptedPacket = JsonConvert.DeserializeObject<EncryptedPacket>(encryptedPacketText);
+
+            var foo = hybrid.DecryptData(encryptedPacket, opts.KeyBitLength, encryptor, digitalSigner, opts.RecipientKeyPath, opts.SenderKeyPath);
+
+            var serialisedPlainText = JsonConvert.SerializeObject(Encoding.UTF8.GetString(foo));
+
+            File.WriteAllText(opts.OutputPath, serialisedPlainText);
 
             return 0;
         }

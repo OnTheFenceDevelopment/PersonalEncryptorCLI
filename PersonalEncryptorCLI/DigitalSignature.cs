@@ -26,7 +26,8 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
         {
             using (var rsa = new RSACryptoServiceProvider(keyLength))
             {
-                rsa.FromXmlString(pathToPublicKey);
+                var publicKey = File.ReadAllText(pathToPublicKey);
+                rsa.FromXmlString(publicKey);
 
                 var rsaDeformatter = new RSAPKCS1SignatureDeformatter(rsa);
                 rsaDeformatter.SetHashAlgorithm("SHA256");

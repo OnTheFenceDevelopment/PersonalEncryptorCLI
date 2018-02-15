@@ -6,7 +6,7 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
     {
         private readonly AesEncryption _aes = new AesEncryption();
 
-        public EncryptedPacket EncryptData(byte[] original, int keyLength, RSAWithRSAParameterKey rsaParams, DigitalSignature digitalSignature, string pathToRecipientPublicKey, string pathToSenderPrivateKey)
+        public EncryptedPacket EncryptData(byte[] original, int keyLength, RSAEncryption rsaParams, DigitalSignature digitalSignature, string pathToRecipientPublicKey, string pathToSenderPrivateKey)
         {
             var sessionKey = _aes.GenerateRandomNumber(32);
 
@@ -26,7 +26,7 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
             return encryptedPacket;
         }
 
-        public byte[] DecryptData(EncryptedPacket encryptedPacket, int keyLength, RSAWithRSAParameterKey rsaParams, DigitalSignature digitalSignature, string pathToRecipientPrivateKey, string pathToSenderPublicKey)
+        public byte[] DecryptData(EncryptedPacket encryptedPacket, int keyLength, RSAEncryption rsaParams, DigitalSignature digitalSignature, string pathToRecipientPrivateKey, string pathToSenderPublicKey)
         {
             var decryptedSessionKey = rsaParams.DecryptData(encryptedPacket.EncryptedSessionKey, keyLength, pathToRecipientPrivateKey);
 

@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 
 namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 {
-    public class RSAWithRSAParameterKey
+    public class RSAEncryption
     {
         public void GenerateKeyPair(int keyLength, string keyPrefix, string outputLocation)
         {

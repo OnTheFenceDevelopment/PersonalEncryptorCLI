@@ -24,7 +24,7 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
             // TODO: Need to validate Paths before proceeding
 
 
-            var encryptor = new RSAWithRSAParameterKey();
+            var encryptor = new RSAEncryption();
             var digitalSigner = new DigitalSignature();
 
             var hybrid = new HybridEncryption();
@@ -43,7 +43,7 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
             // TODO: Need to validate Paths before proceeding
 
 
-            var encryptor = new RSAWithRSAParameterKey();
+            var encryptor = new RSAEncryption();
             var digitalSigner = new DigitalSignature();
 
             var hybrid = new HybridEncryption();
@@ -101,7 +101,7 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
                 }
 
 
-                var rsa = new RSAWithRSAParameterKey();
+                var rsa = new RSAEncryption();
 
                 rsa.GenerateKeyPair(opts.KeyLength, opts.Name, opts.OutputPath);
 

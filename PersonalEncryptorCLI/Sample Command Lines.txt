@@ -1,5 +1,8 @@
 ﻿generatekeys --name Gina --output C:\Users\Dave\MyKeys
 
-encrypttext --text "This is a test message" --senderkeypath C:\Users\Dave\MyKeys\DavesPrivateKey.xml --recipientkeypath C:\Users\Dave\MyKeys\GinaPublicKey.xml --output C:\Users\Dave\MyData\Text.json
+encrypttext --text "This is a test message" --senderkeypath C:\Users\Dave\MyKeys\DavesPrivateKey.xml --recipientkeypath C:\Users\Dave\MyKeys\GinasPublicKey.xml --output C:\Users\Dave\MyData\Text.json
 
-decrypttext --pathtopacket C:\Users\Dave\MyData\Text.json --senderkeypath C:\Users\Dave\MyKeys\DavesPublicKey.xml --recipientkeypath C:\Users\Dave\MyKeys\GinaPrivateKey.xml --output C:\Users\Dave\MyData\Text.txt
+decrypttext --pathtopacket C:\Users\Dave\MyData\Text.json --senderkeypath C:\Users\Dave\MyKeys\DavesPublicKey.xml --recipientkeypath C:\Users\Dave\MyKeys\GinasPrivateKey.xml --output C:\Users\Dave\MyData\Text.txt
+
+encryptfile --filepath C:\Users\Dave\MyData\InputFile.pdf --senderkeypath C:\Users\Dave\MyKeys\DavesPrivateKey.xml --recipientkeypath C:\Users\Dave\MyKeys\GinasPublicKey.xml --output C:\Users\Dave\MyData\Text.json
+decryptfile --pathtopacket C:\Users\Dave\MyData\TextFile.json --senderkeypath C:\Users\Dave\MyKeys\DavesPublicKey.xml --recipientkeypath C:\Users\Dave\MyKeys\GinasPrivateKey.xml --output C:\Users\Dave\MyData\OutputFile.pdf

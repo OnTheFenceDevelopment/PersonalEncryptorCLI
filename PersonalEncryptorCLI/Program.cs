@@ -4,6 +4,8 @@ using CommandLine;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 {
@@ -23,69 +25,14 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
         #region Option Methods
 
-        static int EncryptFile(EncryptFileOptions opts)
-        {
-            // TODO: Need to validate Paths before proceeding
-            var fileContents = File.ReadAllBytes(opts.FilePath);
-            var encryptedPacket = Encrypt(fileContents, opts.KeyBitLength, opts.RecipientKeyPath, opts.SenderKeyPath);
-
-            var serializedPacket = JsonConvert.SerializeObject(encryptedPacket);
-
-            File.WriteAllText(opts.OutputPath, serializedPacket);
-
-            return 0;
-        }
-
-        static int DecryptFileOptions(DecryptFileOptions opts)
-        {
-            // TODO: Need to validate Paths before proceeding
-            var encryptedPacketText = File.ReadAllText(opts.EncryptedPacketPath);
-            var encryptedPacket = JsonConvert.DeserializeObject<EncryptedPacket>(encryptedPacketText);
-
-            var decryptedData = Decrypt(encryptedPacket, opts.KeyBitLength, opts.SenderKeyPath, opts.RecipientKeyPath);
-
-            // TODO: Currently need to know the file type, e.g. pdf, png or txt, but this is not ideal. Could add a meta-data property to the packet to hold the original filename (encrypted of course) and use that
-            File.WriteAllBytes(opts.OutputPath, decryptedData);
-
-            return 0;
-        }
-
-        static int EncryptText(EncryptTextOptions opts)
-        {
-            // TODO: Need to validate Paths before proceeding            
-            var encryptedPacket = Encrypt(Encoding.ASCII.GetBytes(opts.Text), opts.KeyBitLength, opts.RecipientKeyPath, opts.SenderKeyPath);
-
-            var serializedPacket = JsonConvert.SerializeObject(encryptedPacket);
-
-            File.WriteAllText(opts.OutputPath, serializedPacket);
-
-            return 0;
-        }
-
-        static int DecryptText(DecryptTextOptions opts)
-        {
-            // TODO: Need to validate Paths before proceeding
-            var encryptedPacketText = File.ReadAllText(opts.EncryptedPacketPath);
-            var encryptedPacket = JsonConvert.DeserializeObject<EncryptedPacket>(encryptedPacketText);
-
-            var decryptedData = Decrypt(encryptedPacket, opts.KeyBitLength, opts.SenderKeyPath, opts.RecipientKeyPath);
-
-            var serialisedPlainText = JsonConvert.SerializeObject(Encoding.UTF8.GetString(decryptedData));
-
-            File.WriteAllText(opts.OutputPath, serialisedPlainText);
-
-            return 0;
-        }
-
-        #endregion
-        
-        #region Action Methods
-
         static int GenerateKeyPair(GenerateKeyOptions opts)
         {
             try
             {
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine($"Generating Keys: Key Length = {opts.KeyLength}, Key Name = {opts.Name}, Output Path = {opts.OutputPath}");
+                Console.WriteLine();
+                Console.ResetColor();
 
                 if (string.IsNullOrEmpty(opts.OutputPath) == false)
                 {
@@ -99,7 +46,9 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
                     do
                     {
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("One or more keys of the same name already exist in the specified location, Overwrite? (Y/N)");
+                        Console.ResetColor();
 
                         var shouldOverwrite = Console.ReadLine();
 
@@ -126,17 +75,149 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
                 rsa.GenerateKeyPair(opts.KeyLength, opts.Name, opts.OutputPath);
 
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine($"Success: Key Pair generated in {opts.OutputPath}");
+                Console.WriteLine();
+                Console.ResetColor();
             }
             catch (Exception ex)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"Exception: {ex.Message}");
+                Console.ResetColor();
 
                 return 1;
             }
 
             return 0;
         }
+
+        static int EncryptFile(EncryptFileOptions opts)
+        {
+            if (FilesExist(new List<string> { opts.FilePath, opts.RecipientKeyPath, opts.SenderKeyPath }))
+            {
+
+                var fileContents = File.ReadAllBytes(opts.FilePath);
+                var encryptedPacket = Encrypt(fileContents, opts.KeyBitLength, opts.RecipientKeyPath, opts.SenderKeyPath);
+
+                var serializedPacket = JsonConvert.SerializeObject(encryptedPacket);
+
+                File.WriteAllText(opts.OutputPath, serializedPacket);
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine();
+                Console.WriteLine($"File successfully encrypted to {opts.OutputPath}");
+                Console.WriteLine();
+                Console.ResetColor();
+
+                return 0;
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("One or more of the specified files could not be found");
+                Console.WriteLine();
+                Console.ResetColor();
+
+                return 1;
+            }
+        }
+
+        static int DecryptFileOptions(DecryptFileOptions opts)
+        {
+            if (FilesExist(new List<string> { opts.EncryptedPacketPath, opts.RecipientKeyPath, opts.SenderKeyPath }))
+            {
+                var encryptedPacketText = File.ReadAllText(opts.EncryptedPacketPath);
+                var encryptedPacket = JsonConvert.DeserializeObject<EncryptedPacket>(encryptedPacketText);
+
+                var decryptedData = Decrypt(encryptedPacket, opts.KeyBitLength, opts.SenderKeyPath, opts.RecipientKeyPath);
+
+                // TODO: Currently need to know the file type, e.g. pdf, png or txt, but this is not ideal. Could add a meta-data property to the packet to hold the original filename (encrypted of course) and use that
+                File.WriteAllBytes(opts.OutputPath, decryptedData);
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine();
+                Console.WriteLine($"File successfully decrypted to {opts.OutputPath}");
+                Console.WriteLine();
+                Console.ResetColor();
+
+                return 0;
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("One or more of the specified files could not be found");
+                Console.WriteLine();
+                Console.ResetColor();
+
+                return 1;
+            }
+        }
+
+        static int EncryptText(EncryptTextOptions opts)
+        {
+            if (FilesExist(new List<string> { opts.RecipientKeyPath, opts.SenderKeyPath }))
+            {
+                var encryptedPacket = Encrypt(Encoding.ASCII.GetBytes(opts.Text), opts.KeyBitLength, opts.RecipientKeyPath, opts.SenderKeyPath);
+
+                var serializedPacket = JsonConvert.SerializeObject(encryptedPacket);
+
+                File.WriteAllText(opts.OutputPath, serializedPacket);
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine();
+                Console.WriteLine($"Text successfully encrypted to {opts.OutputPath}");
+                Console.WriteLine();
+                Console.ResetColor();
+
+                return 0;
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("One or more of the specified files could not be found");
+                Console.WriteLine();
+                Console.ResetColor();
+
+                return 1;
+            }
+        }
+
+        static int DecryptText(DecryptTextOptions opts)
+        {
+            if (FilesExist(new List<string> { opts.EncryptedPacketPath, opts.RecipientKeyPath, opts.SenderKeyPath }))
+            {
+                var encryptedPacketText = File.ReadAllText(opts.EncryptedPacketPath);
+                var encryptedPacket = JsonConvert.DeserializeObject<EncryptedPacket>(encryptedPacketText);
+
+                var decryptedData = Decrypt(encryptedPacket, opts.KeyBitLength, opts.SenderKeyPath, opts.RecipientKeyPath);
+
+                var serialisedPlainText = JsonConvert.SerializeObject(Encoding.UTF8.GetString(decryptedData));
+
+                File.WriteAllText(opts.OutputPath, serialisedPlainText);
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine();
+                Console.WriteLine($"File successfully decrypted to {opts.OutputPath}");
+                Console.WriteLine();
+                Console.ResetColor();
+
+                return 0;
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("One or more of the specified files could not be found");
+                Console.WriteLine();
+                Console.ResetColor();
+
+                return 1;
+            }
+        }
+
+        #endregion
+        
+        #region Action Methods
 
         private static EncryptedPacket Encrypt(byte[] dataToEncrypt, int keyLength, string recipientPublicKeyPath, string sendersPrivateKeyPath)
         {
@@ -176,6 +257,26 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
                 keysExist = true;
 
             return keysExist;
+        }
+
+        private static bool FilesExist(List<string> filePaths)
+        {
+            var outcome = true;
+
+            foreach (var filePath in filePaths)
+            {
+                if (File.Exists(filePath) == false)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine();
+                    Console.WriteLine($"File Not Found: {filePath}");
+                    Console.WriteLine();
+                    Console.ResetColor();
+                    outcome = false;
+                }
+            }
+
+            return outcome;
         }
 
         #endregion

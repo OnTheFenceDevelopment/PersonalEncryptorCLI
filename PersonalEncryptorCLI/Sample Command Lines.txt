@@ -4,5 +4,5 @@ encrypttext --text "This is a test message" --senderkeypath C:\Users\Dave\MyKeys
 
 decrypttext --pathtopacket C:\Users\Dave\MyData\Text.json --senderkeypath C:\Users\Dave\MyKeys\DavesPublicKey.xml --recipientkeypath C:\Users\Dave\MyKeys\GinasPrivateKey.xml --output C:\Users\Dave\MyData\Text.txt
 
-encryptfile --filepath C:\Users\Dave\MyData\InputFile.pdf --senderkeypath C:\Users\Dave\MyKeys\DavesPrivateKey.xml --recipientkeypath C:\Users\Dave\MyKeys\GinasPublicKey.xml --output C:\Users\Dave\MyData\Text.json
+encryptfile --filepath C:\Users\Dave\MyData\InputFile.pdf --senderkeypath C:\Users\Dave\MyKeys\DavesPrivateKey.xml --recipientkeypath C:\Users\Dave\MyKeys\GinasPublicKey.xml --output C:\Users\Dave\MyData\TextFile.json
 decryptfile --pathtopacket C:\Users\Dave\MyData\TextFile.json --senderkeypath C:\Users\Dave\MyKeys\DavesPublicKey.xml --recipientkeypath C:\Users\Dave\MyKeys\GinasPrivateKey.xml --output C:\Users\Dave\MyData\OutputFile.pdf

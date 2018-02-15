@@ -21,17 +21,13 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
                     errs => 1);
         }
 
+        #region Option Methods
+
         static int EncryptFile(EncryptFileOptions opts)
         {
             // TODO: Need to validate Paths before proceeding
-            var encryptor = new RSAEncryption();
-            var digitalSigner = new DigitalSignature();
-
-            var hybrid = new HybridEncryption();
-
             var fileContents = File.ReadAllBytes(opts.FilePath);
-
-            var encryptedPacket = hybrid.EncryptData(fileContents, opts.KeyBitLength, encryptor, digitalSigner, opts.RecipientKeyPath, opts.SenderKeyPath);
+            var encryptedPacket = Encrypt(fileContents, opts.KeyBitLength, opts.RecipientKeyPath, opts.SenderKeyPath);
 
             var serializedPacket = JsonConvert.SerializeObject(encryptedPacket);
 
@@ -39,18 +35,14 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
             return 0;
         }
+
         static int DecryptFileOptions(DecryptFileOptions opts)
         {
             // TODO: Need to validate Paths before proceeding
-            var encryptor = new RSAEncryption();
-            var digitalSigner = new DigitalSignature();
-
-            var hybrid = new HybridEncryption();
-
             var encryptedPacketText = File.ReadAllText(opts.EncryptedPacketPath);
             var encryptedPacket = JsonConvert.DeserializeObject<EncryptedPacket>(encryptedPacketText);
 
-            var decryptedData = hybrid.DecryptData(encryptedPacket, opts.KeyBitLength, encryptor, digitalSigner, opts.RecipientKeyPath, opts.SenderKeyPath);
+            var decryptedData = Decrypt(encryptedPacket, opts.KeyBitLength, opts.SenderKeyPath, opts.RecipientKeyPath);
 
             // TODO: Currently need to know the file type, e.g. pdf, png or txt, but this is not ideal. Could add a meta-data property to the packet to hold the original filename (encrypted of course) and use that
             File.WriteAllBytes(opts.OutputPath, decryptedData);
@@ -60,14 +52,8 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
         static int EncryptText(EncryptTextOptions opts)
         {
-            // TODO: Need to validate Paths before proceeding
-
-            var encryptor = new RSAEncryption();
-            var digitalSigner = new DigitalSignature();
-
-            var hybrid = new HybridEncryption();
-
-            var encryptedPacket = hybrid.EncryptData(Encoding.ASCII.GetBytes(opts.Text), opts.KeyBitLength, encryptor, digitalSigner, opts.RecipientKeyPath, opts.SenderKeyPath);
+            // TODO: Need to validate Paths before proceeding            
+            var encryptedPacket = Encrypt(Encoding.ASCII.GetBytes(opts.Text), opts.KeyBitLength, opts.RecipientKeyPath, opts.SenderKeyPath);
 
             var serializedPacket = JsonConvert.SerializeObject(encryptedPacket);
 
@@ -79,15 +65,10 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
         static int DecryptText(DecryptTextOptions opts)
         {
             // TODO: Need to validate Paths before proceeding
-            var encryptor = new RSAEncryption();
-            var digitalSigner = new DigitalSignature();
-
-            var hybrid = new HybridEncryption();
-
             var encryptedPacketText = File.ReadAllText(opts.EncryptedPacketPath);
             var encryptedPacket = JsonConvert.DeserializeObject<EncryptedPacket>(encryptedPacketText);
 
-            var decryptedData = hybrid.DecryptData(encryptedPacket, opts.KeyBitLength, encryptor, digitalSigner, opts.RecipientKeyPath, opts.SenderKeyPath);
+            var decryptedData = Decrypt(encryptedPacket, opts.KeyBitLength, opts.SenderKeyPath, opts.RecipientKeyPath);
 
             var serialisedPlainText = JsonConvert.SerializeObject(Encoding.UTF8.GetString(decryptedData));
 
@@ -95,6 +76,10 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
             return 0;
         }
+
+        #endregion
+        
+        #region Action Methods
 
         static int GenerateKeyPair(GenerateKeyOptions opts)
         {
@@ -153,6 +138,34 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
             return 0;
         }
 
+        private static EncryptedPacket Encrypt(byte[] dataToEncrypt, int keyLength, string recipientPublicKeyPath, string sendersPrivateKeyPath)
+        {
+            var encryptor = new RSAEncryption();
+            var digitalSigner = new DigitalSignature();
+
+            var hybrid = new HybridEncryption();
+
+            var encryptedPacket = hybrid.EncryptData(dataToEncrypt, keyLength, encryptor, digitalSigner, recipientPublicKeyPath, sendersPrivateKeyPath);
+
+            return encryptedPacket;
+        }
+
+        private static byte[] Decrypt(EncryptedPacket encryptedPacket, int keyLength, string sendersPublicKeyPath, string recipientsPrivateKeyPath)
+        {
+            var encryptor = new RSAEncryption();
+            var digitalSigner = new DigitalSignature();
+
+            var hybrid = new HybridEncryption();
+
+            var decryptedData = hybrid.DecryptData(encryptedPacket, keyLength, encryptor, digitalSigner, recipientsPrivateKeyPath, sendersPublicKeyPath);
+
+            return decryptedData;
+        }
+
+        #endregion
+
+        #region Helper Methods
+
         private static bool KeysExist(string keyName, string outputPath)
         {
             var keysExist = false;
@@ -164,5 +177,7 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
             return keysExist;
         }
+
+        #endregion
     }
 }

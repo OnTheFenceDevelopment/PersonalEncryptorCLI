@@ -61,9 +61,7 @@
     <Compile Include="EncryptedPacket.cs" />
     <Compile Include="HybridEncryption.cs" />
     <Compile Include="Options\DecryptFileOptions.cs" />
-    <Compile Include="Options\DecryptTextOptions.cs" />
     <Compile Include="Options\EncryptFileOptions.cs" />
-    <Compile Include="Options\EncryptTextOptions.cs" />
     <Compile Include="Options\GenerateKeyOptions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

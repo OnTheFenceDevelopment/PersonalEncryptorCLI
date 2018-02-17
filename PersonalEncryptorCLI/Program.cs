@@ -13,11 +13,9 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
     {
         static int Main(string[] args)
         {
-            return Parser.Default.ParseArguments<GenerateKeyOptions, EncryptTextOptions, DecryptTextOptions, EncryptFileOptions, DecryptFileOptions>(args)
+            return Parser.Default.ParseArguments<GenerateKeyOptions, EncryptFileOptions, DecryptFileOptions>(args)
                 .MapResult(
                     (GenerateKeyOptions opts) => GenerateKeyPair(opts),
-                    (EncryptTextOptions opts) => EncryptText(opts),
-                    (DecryptTextOptions opts) => DecryptText(opts),
                     (EncryptFileOptions opts) => EncryptFile(opts),
                     (DecryptFileOptions opts) => DecryptFileOptions(opts),
                     errs => 1);
@@ -152,68 +150,7 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
                 return 1;
             }
-        }
-
-        static int EncryptText(EncryptTextOptions opts)
-        {
-            if (FilesExist(new List<string> { opts.RecipientKeyPath, opts.SenderKeyPath }))
-            {
-                var encryptedPacket = Encrypt(Encoding.ASCII.GetBytes(opts.Text), opts.KeyBitLength, opts.RecipientKeyPath, opts.SenderKeyPath);
-
-                var serializedPacket = JsonConvert.SerializeObject(encryptedPacket);
-
-                File.WriteAllText(opts.OutputPath, serializedPacket);
-
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine();
-                Console.WriteLine($"Text successfully encrypted to {opts.OutputPath}");
-                Console.WriteLine();
-                Console.ResetColor();
-
-                return 0;
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("One or more of the specified files could not be found");
-                Console.WriteLine();
-                Console.ResetColor();
-
-                return 1;
-            }
-        }
-
-        static int DecryptText(DecryptTextOptions opts)
-        {
-            if (FilesExist(new List<string> { opts.EncryptedPacketPath, opts.RecipientKeyPath, opts.SenderKeyPath }))
-            {
-                var encryptedPacketText = File.ReadAllText(opts.EncryptedPacketPath);
-                var encryptedPacket = JsonConvert.DeserializeObject<EncryptedPacket>(encryptedPacketText);
-
-                var decryptedData = Decrypt(encryptedPacket, opts.KeyBitLength, opts.SenderKeyPath, opts.RecipientKeyPath);
-
-                var serialisedPlainText = JsonConvert.SerializeObject(Encoding.UTF8.GetString(decryptedData));
-
-                File.WriteAllText(opts.OutputPath, serialisedPlainText);
-
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine();
-                Console.WriteLine($"File successfully decrypted to {opts.OutputPath}");
-                Console.WriteLine();
-                Console.ResetColor();
-
-                return 0;
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("One or more of the specified files could not be found");
-                Console.WriteLine();
-                Console.ResetColor();
-
-                return 1;
-            }
-        }
+        }        
 
         #endregion
         

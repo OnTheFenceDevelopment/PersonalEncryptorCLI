@@ -2,10 +2,8 @@
 using OnTheFenceDevelopment.PersonalEncryptorCLI.Options;
 using CommandLine;
 using System.IO;
-using System.Text;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 {
@@ -27,18 +25,11 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
         {
             try
             {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"Generating Keys: Key Length = {opts.KeyLength}, Key Name = {opts.Name}, Output Path = {opts.OutputPath}");
-                Console.WriteLine();
-                Console.ResetColor();
+                WriteMessageToConsole($"Generating Keys: Key Length = {opts.KeyLength}, Key Name = {opts.Name}, Output Path = {opts.OutputPath}", ConsoleColor.Green);
 
                 if (FolderExistsOrWasCreated(opts.OutputPath) == false)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine();
-                    Console.WriteLine("Output Path Invalid - Key Generation Aborted");
-                    Console.WriteLine();
-                    Console.ResetColor();
+                    WriteMessageToConsole("Output Path Invalid - Key Generation Aborted", ConsoleColor.Red);
 
                     return 1;
                 }
@@ -49,11 +40,7 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
                     do
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine();
-                        Console.WriteLine("One or more keys of the same name already exist in the specified location, Overwrite? (Y/N)");
-                        Console.WriteLine();
-                        Console.ResetColor();
+                        WriteMessageToConsole("One or more keys of the same name already exist in the specified location, Overwrite? (Y/N)", ConsoleColor.Red);
 
                         var shouldOverwrite = Console.ReadLine();
 
@@ -79,20 +66,11 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
                 rsa.GenerateKeyPair(opts.KeyLength, opts.Name, opts.OutputPath);
 
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine();
-                Console.WriteLine($"Success: Key Pair generated in {opts.OutputPath}");
-                Console.WriteLine();
-                Console.ResetColor();
+                WriteMessageToConsole($"Success: Key Pair generated in {opts.OutputPath}", ConsoleColor.Green);
             }
             catch (Exception ex)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine();
-                Console.WriteLine($"Exception: {ex.Message}");
-                Console.WriteLine();
-                Console.ResetColor();
-
+                WriteMessageToConsole($"Exception: {ex.Message}", ConsoleColor.Red);
                 return 1;
             }
 
@@ -101,9 +79,15 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
         static int EncryptFile(EncryptFileOptions opts)
         {
+            if (FolderExistsOrWasCreated(Path.GetDirectoryName(opts.RecipientKeyPath)) == false || FolderExistsOrWasCreated(Path.GetDirectoryName(opts.SenderKeyPath)) == false || FolderExistsOrWasCreated(Path.GetDirectoryName(opts.OutputPath)) == false)
+            {
+                WriteMessageToConsole("One or more Folder Path Invalid - Encryption Opteration Aborted", ConsoleColor.Red);
+
+                return 1;
+            }
+
             if (FilesExist(new List<string> { opts.FilePath, opts.RecipientKeyPath, opts.SenderKeyPath }))
             {
-
                 var fileContents = File.ReadAllBytes(opts.FilePath);
                 var encryptedPacket = Encrypt(fileContents, opts.KeyBitLength, opts.RecipientKeyPath, opts.SenderKeyPath);
 
@@ -111,27 +95,25 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
                 File.WriteAllText(opts.OutputPath, serializedPacket);
 
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine();
-                Console.WriteLine($"File successfully encrypted to {opts.OutputPath}");
-                Console.WriteLine();
-                Console.ResetColor();
+                WriteMessageToConsole($"File successfully encrypted to {opts.OutputPath}", ConsoleColor.Green);
 
                 return 0;
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("One or more of the specified files could not be found");
-                Console.WriteLine();
-                Console.ResetColor();
-
+                WriteMessageToConsole("Unexpected error encountered during the Encryption operation", ConsoleColor.Red);
                 return 1;
             }
         }
 
         static int DecryptFileOptions(DecryptFileOptions opts)
         {
+            if (FolderExistsOrWasCreated(Path.GetDirectoryName(opts.RecipientKeyPath)) == false || FolderExistsOrWasCreated(Path.GetDirectoryName(opts.SenderKeyPath)) == false || FolderExistsOrWasCreated(Path.GetDirectoryName(opts.OutputPath)) == false || FolderExistsOrWasCreated(Path.GetDirectoryName(opts.EncryptedPacketPath)) == false)
+            {
+                WriteMessageToConsole("One or more Folder Path Invalid - Encryption Opteration Aborted", ConsoleColor.Red);
+                return 1;
+            }
+
             if (FilesExist(new List<string> { opts.EncryptedPacketPath, opts.RecipientKeyPath, opts.SenderKeyPath }))
             {
                 var encryptedPacketText = File.ReadAllText(opts.EncryptedPacketPath);
@@ -142,21 +124,14 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
                 // TODO: Currently need to know the file type, e.g. pdf, png or txt, but this is not ideal. Could add a meta-data property to the packet to hold the original filename (encrypted of course) and use that
                 File.WriteAllBytes(opts.OutputPath, decryptedData);
 
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine();
-                Console.WriteLine($"File successfully decrypted to {opts.OutputPath}");
-                Console.WriteLine();
-                Console.ResetColor();
+                WriteMessageToConsole($"File successfully decrypted to {opts.OutputPath}", ConsoleColor.Green);
 
                 return 0;
             }
             else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("One or more of the specified files could not be found");
-                Console.WriteLine();
-                Console.ResetColor();
-
+            {                
+                WriteMessageToConsole("One or more of the specified files could not be found", ConsoleColor.Red);
+                
                 return 1;
             }
         }        
@@ -212,22 +187,13 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
             if (Directory.Exists(folderPath))
                 return true;
 
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine();
-            Console.WriteLine($"The specified folder [{folderPath}] does not exist - create it (Y/N)?");
-            Console.WriteLine();
-            Console.ResetColor();
+            WriteMessageToConsole($"The specified folder [{folderPath}] does not exist - create it (Y/N)?", ConsoleColor.Red);
 
             var response = Console.ReadKey();
 
             while (response.Key != ConsoleKey.Y && response.Key != ConsoleKey.N)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine();
-                Console.WriteLine("Please enter Y or N");
-                Console.WriteLine();
-                Console.ResetColor();
-
+                WriteMessageToConsole("Please enter Y or N", ConsoleColor.Red);
                 response = Console.ReadKey();
             }
 
@@ -241,16 +207,20 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
             }
             catch (Exception ex)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine();
-                Console.Write($"Unable to create folder [{folderPath}] - {ex.Message}");
-                Console.WriteLine();
-                Console.ResetColor();
-
+                WriteMessageToConsole($"Unable to create folder [{folderPath}] - {ex.Message}", ConsoleColor.Red);
                 return false;
             }
 
             return outcome;
+        }
+
+        private static void WriteMessageToConsole(string message, ConsoleColor textColour)
+        {
+            Console.ForegroundColor = textColour;
+            Console.WriteLine();
+            Console.Write(message);
+            Console.WriteLine();
+            Console.ResetColor();
         }
 
         private static bool FilesExist(List<string> filePaths)
@@ -261,11 +231,7 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
             {
                 if (File.Exists(filePath) == false)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine();
-                    Console.WriteLine($"File Not Found: {filePath}");
-                    Console.WriteLine();
-                    Console.ResetColor();
+                    WriteMessageToConsole($"File Not Found: {filePath}", ConsoleColor.Red);
                     outcome = false;
                 }
             }

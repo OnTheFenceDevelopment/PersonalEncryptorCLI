@@ -67,6 +67,15 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
                     if (overwrite.Value == false)
                         return 0;
                 }
+                
+                if (FolderExistsOrWasCreated(opts.OutputPath) == false)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Output Path Invalid - Key Generation Aborted");
+                    Console.ResetColor();
+
+                    return 1;
+                }
 
 
                 var rsa = new RSAEncryption();
@@ -194,6 +203,50 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
                 keysExist = true;
 
             return keysExist;
+        }
+
+        private static bool FolderExistsOrWasCreated(string folderPath)
+        {
+            var outcome = false;
+
+            if (Directory.Exists(folderPath))
+                return true;
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine();
+            Console.WriteLine($"The specified folder [{folderPath}] does not exist - create it (Y/N)?");
+            Console.WriteLine();
+            Console.ResetColor();
+
+            var response = Console.ReadKey();
+
+            while (response.Key != ConsoleKey.Y && response.Key != ConsoleKey.N)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Please enter Y or N");
+                Console.WriteLine();
+                response = Console.ReadKey();
+            }
+
+            if (response.Key == ConsoleKey.N)
+                return false;
+
+            try
+            {
+                var directory = Directory.CreateDirectory(folderPath);
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine();
+                Console.Write($"Unable to create folder [{folderPath}] - {ex.Message}");
+                Console.WriteLine();
+                Console.ResetColor();
+
+                return false;
+            }
+
+            return outcome;
         }
 
         private static bool FilesExist(List<string> filePaths)

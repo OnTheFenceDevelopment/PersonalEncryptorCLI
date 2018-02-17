@@ -98,7 +98,6 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="PersonalEncryptorCLI_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Sample Command Lines.txt" />

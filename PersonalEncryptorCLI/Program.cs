@@ -32,10 +32,15 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
                 Console.WriteLine();
                 Console.ResetColor();
 
-                if (string.IsNullOrEmpty(opts.OutputPath) == false)
+                if (FolderExistsOrWasCreated(opts.OutputPath) == false)
                 {
-                    if (Directory.Exists(opts.OutputPath) == false)
-                        Directory.CreateDirectory(opts.OutputPath);
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine();
+                    Console.WriteLine("Output Path Invalid - Key Generation Aborted");
+                    Console.WriteLine();
+                    Console.ResetColor();
+
+                    return 1;
                 }
 
                 if (KeysExist(opts.Name, opts.OutputPath))
@@ -45,7 +50,9 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
                     do
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine();
                         Console.WriteLine("One or more keys of the same name already exist in the specified location, Overwrite? (Y/N)");
+                        Console.WriteLine();
                         Console.ResetColor();
 
                         var shouldOverwrite = Console.ReadLine();
@@ -67,22 +74,13 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
                     if (overwrite.Value == false)
                         return 0;
                 }
-                
-                if (FolderExistsOrWasCreated(opts.OutputPath) == false)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Output Path Invalid - Key Generation Aborted");
-                    Console.ResetColor();
-
-                    return 1;
-                }
-
 
                 var rsa = new RSAEncryption();
 
                 rsa.GenerateKeyPair(opts.KeyLength, opts.Name, opts.OutputPath);
 
                 Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine();
                 Console.WriteLine($"Success: Key Pair generated in {opts.OutputPath}");
                 Console.WriteLine();
                 Console.ResetColor();
@@ -90,7 +88,9 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine();
                 Console.WriteLine($"Exception: {ex.Message}");
+                Console.WriteLine();
                 Console.ResetColor();
 
                 return 1;
@@ -222,9 +222,12 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
             while (response.Key != ConsoleKey.Y && response.Key != ConsoleKey.N)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine();
                 Console.WriteLine("Please enter Y or N");
                 Console.WriteLine();
+                Console.ResetColor();
+
                 response = Console.ReadKey();
             }
 
@@ -234,6 +237,7 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
             try
             {
                 var directory = Directory.CreateDirectory(folderPath);
+                outcome = true;
             }
             catch (Exception ex)
             {

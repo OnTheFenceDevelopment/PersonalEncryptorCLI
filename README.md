@@ -9,6 +9,7 @@ You can read more about my [reasoning behind this project in my blog post](https
 
 Branch | Status
 -------|-------
+Master | [<img src="https://onthefencedevelopment.visualstudio.com/_apis/public/build/definitions/51342446-9fa6-4c4a-be3e-e2dc6bddf4b1/10/badge">](https://onthefencedevelopment.visualstudio.com/PersonalEncryptorCLI/_build/index?definitionId=10)
 Develop | [<img src="https://onthefencedevelopment.visualstudio.com/_apis/public/build/definitions/51342446-9fa6-4c4a-be3e-e2dc6bddf4b1/9/badge"/>](https://onthefencedevelopment.visualstudio.com/PersonalEncryptorCLI/_build/index?definitionId=9)
 
 ## Usage ##

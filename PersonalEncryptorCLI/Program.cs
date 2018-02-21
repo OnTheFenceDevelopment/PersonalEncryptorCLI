@@ -1,9 +1,9 @@
-﻿using System;
-using OnTheFenceDevelopment.PersonalEncryptorCLI.Options;
-using CommandLine;
-using System.IO;
+﻿using CommandLine;
 using Newtonsoft.Json;
+using OnTheFenceDevelopment.PersonalEncryptorCLI.Options;
+using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 {
@@ -30,7 +30,6 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
                 if (FolderExistsOrWasCreated(opts.OutputPath) == false)
                 {
                     WriteMessageToConsole("Output Path Invalid - Key Generation Aborted", ConsoleColor.Red);
-
                     return 1;
                 }
 
@@ -79,13 +78,6 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
         static int EncryptFile(EncryptFileOptions opts)
         {
-            if (FolderExistsOrWasCreated(Path.GetDirectoryName(opts.RecipientKeyPath)) == false || FolderExistsOrWasCreated(Path.GetDirectoryName(opts.SenderKeyPath)) == false || FolderExistsOrWasCreated(Path.GetDirectoryName(opts.OutputPath)) == false)
-            {
-                WriteMessageToConsole("One or more Folder Path Invalid - Encryption Opteration Aborted", ConsoleColor.Red);
-
-                return 1;
-            }
-
             if (FilesExist(new List<string> { opts.FilePath, opts.RecipientKeyPath, opts.SenderKeyPath }))
             {
                 var fileContents = File.ReadAllBytes(opts.FilePath);
@@ -93,27 +85,27 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
                 var serializedPacket = JsonConvert.SerializeObject(encryptedPacket);
 
-                File.WriteAllText(opts.OutputPath, serializedPacket);
-
-                WriteMessageToConsole($"File successfully encrypted to {opts.OutputPath}", ConsoleColor.Green);
-
-                return 0;
+                try
+                {
+                    File.WriteAllText(opts.OutputPath, serializedPacket);
+                    WriteMessageToConsole($"File successfully encrypted to {opts.OutputPath}", ConsoleColor.Green);
+                    return 0;
+                }
+                catch (Exception ex)
+                {
+                    WriteMessageToConsole(ex.Message, ConsoleColor.Red);
+                    return 1;
+                }
             }
             else
             {
-                WriteMessageToConsole("Unexpected error encountered during the Encryption operation", ConsoleColor.Red);
+                WriteMessageToConsole("One or more of the specified files were not found - see above", ConsoleColor.Red);
                 return 1;
             }
         }
 
         static int DecryptFileOptions(DecryptFileOptions opts)
         {
-            if (FolderExistsOrWasCreated(Path.GetDirectoryName(opts.RecipientKeyPath)) == false || FolderExistsOrWasCreated(Path.GetDirectoryName(opts.SenderKeyPath)) == false || FolderExistsOrWasCreated(Path.GetDirectoryName(opts.OutputPath)) == false || FolderExistsOrWasCreated(Path.GetDirectoryName(opts.EncryptedPacketPath)) == false)
-            {
-                WriteMessageToConsole("One or more Folder Path Invalid - Encryption Opteration Aborted", ConsoleColor.Red);
-                return 1;
-            }
-
             if (FilesExist(new List<string> { opts.EncryptedPacketPath, opts.RecipientKeyPath, opts.SenderKeyPath }))
             {
                 var encryptedPacketText = File.ReadAllText(opts.EncryptedPacketPath);
@@ -121,23 +113,30 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
                 var decryptedData = Decrypt(encryptedPacket, opts.KeyBitLength, opts.SenderKeyPath, opts.RecipientKeyPath);
 
-                // TODO: Currently need to know the file type, e.g. pdf, png or txt, but this is not ideal. Could add a meta-data property to the packet to hold the original filename (encrypted of course) and use that
-                File.WriteAllBytes(opts.OutputPath, decryptedData);
+                try
+                {
+                    // TODO: Currently need to know the file type, e.g. pdf, png or txt, but this is not ideal. Could add a meta-data property to the packet to hold the original filename (encrypted of course) and use that
+                    File.WriteAllBytes(opts.OutputPath, decryptedData);
+                }
+                catch (Exception ex)
+                {
+                    WriteMessageToConsole(ex.Message, ConsoleColor.Red);
+                    return 1;
+                }
 
                 WriteMessageToConsole($"File successfully decrypted to {opts.OutputPath}", ConsoleColor.Green);
 
                 return 0;
             }
             else
-            {                
-                WriteMessageToConsole("One or more of the specified files could not be found", ConsoleColor.Red);
-                
+            {
+                WriteMessageToConsole("One or more of the specified files were not found - see above", ConsoleColor.Red);
                 return 1;
             }
-        }        
+        }
 
         #endregion
-        
+
         #region Action Methods
 
         private static EncryptedPacket Encrypt(byte[] dataToEncrypt, int keyLength, string recipientPublicKeyPath, string sendersPrivateKeyPath)

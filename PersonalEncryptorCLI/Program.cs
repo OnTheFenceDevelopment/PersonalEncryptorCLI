@@ -81,10 +81,20 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
             if (FilesExist(new List<string> { opts.FilePath, opts.RecipientKeyPath, opts.SenderKeyPath }))
             {
                 var fileContents = File.ReadAllBytes(opts.FilePath);
-                var encryptedPacket = Encrypt(fileContents, opts.KeyBitLength, opts.RecipientKeyPath, opts.SenderKeyPath);
 
-                var serializedPacket = JsonConvert.SerializeObject(encryptedPacket);
+                var serializedPacket = string.Empty;
 
+                try
+                {
+                    var encryptedPacket = Encrypt(fileContents, opts.KeyBitLength, opts.RecipientKeyPath, opts.SenderKeyPath);
+                    serializedPacket = JsonConvert.SerializeObject(encryptedPacket);
+                }
+                catch (Exception ex)
+                {
+                    WriteMessageToConsole($"Error while encrypting data: {ex.Message}", ConsoleColor.Red);
+                    return 1;
+                }
+                
                 try
                 {
                     File.WriteAllText(opts.OutputPath, serializedPacket);
@@ -111,7 +121,17 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
                 var encryptedPacketText = File.ReadAllText(opts.EncryptedPacketPath);
                 var encryptedPacket = JsonConvert.DeserializeObject<EncryptedPacket>(encryptedPacketText);
 
-                var decryptedData = Decrypt(encryptedPacket, opts.KeyBitLength, opts.SenderKeyPath, opts.RecipientKeyPath);
+                var decryptedData = new byte[] { };
+
+                try
+                {
+                    decryptedData = Decrypt(encryptedPacket, opts.KeyBitLength, opts.SenderKeyPath, opts.RecipientKeyPath);
+                }
+                catch (Exception ex)
+                {
+                    WriteMessageToConsole($"Error while decrypting data: {ex.Message}", ConsoleColor.Red);
+                    return 1;
+                }
 
                 try
                 {

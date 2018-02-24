@@ -11,7 +11,7 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI.Options
         [Option('n',"name", HelpText = "Key name prefix, e.g. <name>PrivateKey.xml and <name>PublicKey.xml")]
         public string Name { get; set; }
 
-        [Option('o', "output", HelpText = "Output path for generated key pair files")]
+        [Option('o', "output", HelpText = "Output path for generated key pair files", Required = true)]
         public string OutputPath { get; set; }
     }
 }

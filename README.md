@@ -55,7 +55,7 @@ encryptfile | | Signals CLI to encrypt specified file
 | | output | The output path (and filename) where the encrypted file will be written to, if the folder does not exist it will be created
 
 #### Usage ####
-To encrypt a file, use the following command (replacing the appropriate paths):
+To encrypt a file, use the following command using the appropriate file paths (note that this is a single line command):
 
 `C:\> PersonalEncryptorCLI encryptfile --filepath C:\Users\Alice\MyData\InputFile.pdf --senderkeypath C:\Users\Alice\MyKeys\AlicePrivateKey.xml --recipientkeypath C:\Users\Alice\MyKeys\BobPublicKey.xml --output C:\Users\Alice\MyData\TextFile.json`
 
@@ -74,6 +74,6 @@ decryptfile | | Signals CLI to decrypt specified file
 | | output | The output path (and filename) where the decrypted file will be written to, if the folder does not exist it will be created
 
 #### Usage ####
-To decyrpt an 'encrypted packet' JSON file using the sender's PUBLIC key and recipient's PRIVATE key, use the following command (replacing the appropriate paths)
+To decyrpt an 'encrypted packet' JSON file using the sender's PUBLIC key and recipient's PRIVATE key, use the following command using the appropriate file paths (note that this is a single line command)
 
 `C:\> PersonalEncryptorCLI decryptfile --pathtopacket C:\Users\Bob\MyData\TextFile.json --senderkeypath C:\Users\Bob\MyKeys\AlicePublicKey.xml --recipientkeypath C:\Users\Bob\MyKeys\BobPrivateKey.xml --output C:\Users\Bob\MyData\OutputFile.pdf`

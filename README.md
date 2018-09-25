@@ -61,7 +61,7 @@ To encrypt a file, use the following command using the appropriate file paths (n
 
 ### Decrypt File ###
 
-Files are decrypted in the same manner as used for encryption but where the sender's PRIVATE and recipient's PUBLIC keys were used to perform the encryption the other key in each pair is now required, i.e. the sender's PUBLIC and recipient's PRIVATE keys.
+Files are decrypted in the same manner as used for encryption but where the sender's PRIVATE and recipient's PUBLIC keys were used to perform the encryption the other key in each pair is now required, i.e. the sender's PUBLIC and recipient's PRIVATE keys. From version 1.1.0 onwards the original filename will be included in the Encrypted Packet and this will be decrypted and used when creating the output file during decryption.
 
 #### Options ####
 Action | Option | Notes
@@ -71,9 +71,9 @@ decryptfile | | Signals CLI to decrypt specified file
 | | keylength | The bit length of the keys to generate, defaults to 2048
 | | senderkeypath | The full path to the sender's PUBLIC key
 | | recipientkeypath | The full path to the recipient's PRIVATE key
-| | output | The output path (and filename) where the decrypted file will be written to, if the folder does not exist it will be created
+| | output | The output path (excluding filename) where the decrypted file will be written to, if the folder does not exist it will be created
 
 #### Usage ####
 To decyrpt an 'encrypted packet' JSON file using the sender's PUBLIC key and recipient's PRIVATE key, use the following command using the appropriate file paths (note that this is a single line command)
 
-`C:\> PersonalEncryptorCLI decryptfile --pathtopacket C:\Users\Bob\MyData\TextFile.json --senderkeypath C:\Users\Bob\MyKeys\AlicePublicKey.xml --recipientkeypath C:\Users\Bob\MyKeys\BobPrivateKey.xml --output C:\Users\Bob\MyData\OutputFile.pdf`
+`C:\> PersonalEncryptorCLI decryptfile --pathtopacket C:\Users\Bob\MyData\TextFile.json --senderkeypath C:\Users\Bob\MyKeys\AlicePublicKey.xml --recipientkeypath C:\Users\Bob\MyKeys\BobPrivateKey.xml --output C:\Users\Bob\MyData`

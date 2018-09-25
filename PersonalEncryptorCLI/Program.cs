@@ -144,6 +144,9 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
                     return 1;
                 }
 
+                if(decryptedData.Version1Packet)
+                    WriteMessageToConsole("WARNING: Specified Encrypted Packet did not contain a filename for the original file - temporary filename used instead but extension may be incorrect!!", ConsoleColor.Red);
+
                 WriteMessageToConsole($"File successfully decrypted to {decryptedData.Filename}", ConsoleColor.Green);
 
                 return 0;

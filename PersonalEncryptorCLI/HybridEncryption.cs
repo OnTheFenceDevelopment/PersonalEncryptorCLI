@@ -6,6 +6,7 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
     public class HybridEncryption
     {
         private readonly AesEncryption _aes = new AesEncryption();
+        private byte[] defaultFilename = Encoding.ASCII.GetBytes("TEMPORARY_FILENAME.TXT");
 
         public EncryptedPacket EncryptData(byte[] original, int keyLength, RSAEncryption rsaParams, DigitalSignature digitalSignature, string pathToRecipientPublicKey, string pathToSenderPrivateKey, string filename)
         {
@@ -49,9 +50,12 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
             }
 
             var decryptedData = _aes.Decrypt(encryptedPacket.EncryptedData, decryptedSessionKey, encryptedPacket.Iv);
-            var originalFilename = _aes.Decrypt(encryptedPacket.Filename, decryptedSessionKey, encryptedPacket.Iv);
 
-            return new DecryptedData { FileContents = decryptedData, Filename = Encoding.ASCII.GetString(originalFilename) };
+            // Need to account for encryptedPacket.Filename being null here - in case a user is decrypting a packet created with v1.0.0
+            var originalFilename = encryptedPacket.Filename != null ? _aes.Decrypt(encryptedPacket.Filename, decryptedSessionKey, encryptedPacket.Iv)
+                                                                    : defaultFilename;
+
+            return new DecryptedData { FileContents = decryptedData, Filename = Encoding.ASCII.GetString(originalFilename), Version1Packet = encryptedPacket.Filename == null };
         }
 
         private static bool Compare(byte[] array1, byte[] array2)

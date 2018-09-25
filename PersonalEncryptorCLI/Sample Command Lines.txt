@@ -2,4 +2,4 @@
 
 encryptfile --filepath C:\Users\Alice\MyData\InputFile.pdf --senderkeypath C:\Users\Alice\MyKeys\AlicePrivateKey.xml --recipientkeypath C:\Users\Alice\MyKeys\BobPublicKey.xml --output C:\Users\Alice\MyData\TextFile.json
 
-decryptfile --pathtopacket C:\Users\Bob\MyData\TextFile.json --senderkeypath C:\Users\Bob\MyKeys\AlicePublicKey.xml --recipientkeypath C:\Users\Bob\MyKeys\BobPrivateKey.xml --output C:\Users\Bob\MyData\OutputFile.pdf
+decryptfile --pathtopacket C:\Users\Bob\MyData\TextFile.json --senderkeypath C:\Users\Bob\MyKeys\AlicePublicKey.xml --recipientkeypath C:\Users\Bob\MyKeys\BobPrivateKey.xml --output C:\Users\Bob\MyData\

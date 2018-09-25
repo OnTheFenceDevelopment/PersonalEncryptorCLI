@@ -135,7 +135,8 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
                 try
                 {
-                    File.WriteAllBytes(decryptedData.Filename, decryptedData.FileContents);
+                    var outputPath = opts.OutputPath == null ? ".\\" : opts.OutputPath;
+                    File.WriteAllBytes($"{outputPath}\\{decryptedData.Filename}", decryptedData.FileContents);
                 }
                 catch (Exception ex)
                 {

@@ -90,6 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AesEncryption.cs" />
+    <Compile Include="DecryptedData.cs" />
     <Compile Include="DigitalSignature.cs" />
     <Compile Include="EncryptedPacket.cs" />
     <Compile Include="HybridEncryption.cs" />

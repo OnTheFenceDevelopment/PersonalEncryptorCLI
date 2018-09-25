@@ -86,7 +86,7 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
                 try
                 {
-                    var encryptedPacket = Encrypt(fileContents, opts.KeyBitLength, opts.RecipientKeyPath, opts.SenderKeyPath);
+                    var encryptedPacket = Encrypt(fileContents, opts.KeyBitLength, opts.RecipientKeyPath, opts.SenderKeyPath, Path.GetFileName(opts.FilePath));
                     serializedPacket = JsonConvert.SerializeObject(encryptedPacket);
                 }
                 catch (Exception ex)
@@ -121,7 +121,7 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
                 var encryptedPacketText = File.ReadAllText(opts.EncryptedPacketPath);
                 var encryptedPacket = JsonConvert.DeserializeObject<EncryptedPacket>(encryptedPacketText);
 
-                var decryptedData = new byte[] { };
+                var decryptedData = new DecryptedData();
 
                 try
                 {
@@ -135,8 +135,7 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
                 try
                 {
-                    // TODO: Currently need to know the file type, e.g. pdf, png or txt, but this is not ideal. Could add a meta-data property to the packet to hold the original filename (encrypted of course) and use that
-                    File.WriteAllBytes(opts.OutputPath, decryptedData);
+                    File.WriteAllBytes(decryptedData.Filename, decryptedData.FileContents);
                 }
                 catch (Exception ex)
                 {
@@ -144,7 +143,7 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
                     return 1;
                 }
 
-                WriteMessageToConsole($"File successfully decrypted to {opts.OutputPath}", ConsoleColor.Green);
+                WriteMessageToConsole($"File successfully decrypted to {decryptedData.Filename}", ConsoleColor.Green);
 
                 return 0;
             }
@@ -159,19 +158,19 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 
         #region Action Methods
 
-        private static EncryptedPacket Encrypt(byte[] dataToEncrypt, int keyLength, string recipientPublicKeyPath, string sendersPrivateKeyPath)
+        private static EncryptedPacket Encrypt(byte[] dataToEncrypt, int keyLength, string recipientPublicKeyPath, string sendersPrivateKeyPath, string filename = "")
         {
             var encryptor = new RSAEncryption();
             var digitalSigner = new DigitalSignature();
 
             var hybrid = new HybridEncryption();
 
-            var encryptedPacket = hybrid.EncryptData(dataToEncrypt, keyLength, encryptor, digitalSigner, recipientPublicKeyPath, sendersPrivateKeyPath);
+            var encryptedPacket = hybrid.EncryptData(dataToEncrypt, keyLength, encryptor, digitalSigner, recipientPublicKeyPath, sendersPrivateKeyPath, filename);
 
             return encryptedPacket;
         }
 
-        private static byte[] Decrypt(EncryptedPacket encryptedPacket, int keyLength, string sendersPublicKeyPath, string recipientsPrivateKeyPath)
+        private static DecryptedData Decrypt(EncryptedPacket encryptedPacket, int keyLength, string sendersPublicKeyPath, string recipientsPrivateKeyPath)
         {
             var encryptor = new RSAEncryption();
             var digitalSigner = new DigitalSignature();

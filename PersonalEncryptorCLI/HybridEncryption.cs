@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography;
+using System.Text;
 
 namespace OnTheFenceDevelopment.PersonalEncryptorCLI
 {
@@ -6,13 +7,15 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
     {
         private readonly AesEncryption _aes = new AesEncryption();
 
-        public EncryptedPacket EncryptData(byte[] original, int keyLength, RSAEncryption rsaParams, DigitalSignature digitalSignature, string pathToRecipientPublicKey, string pathToSenderPrivateKey)
+        public EncryptedPacket EncryptData(byte[] original, int keyLength, RSAEncryption rsaParams, DigitalSignature digitalSignature, string pathToRecipientPublicKey, string pathToSenderPrivateKey, string filename)
         {
             var sessionKey = _aes.GenerateRandomNumber(32);
 
             var encryptedPacket = new EncryptedPacket { Iv = _aes.GenerateRandomNumber(16) };
 
             encryptedPacket.EncryptedData = _aes.Encrypt(original, sessionKey, encryptedPacket.Iv);
+
+            encryptedPacket.Filename = _aes.Encrypt(Encoding.ASCII.GetBytes(filename), sessionKey, encryptedPacket.Iv);
 
             encryptedPacket.EncryptedSessionKey = rsaParams.EncryptData(sessionKey, keyLength, pathToRecipientPublicKey);
 
@@ -26,7 +29,7 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
             return encryptedPacket;
         }
 
-        public byte[] DecryptData(EncryptedPacket encryptedPacket, int keyLength, RSAEncryption rsaParams, DigitalSignature digitalSignature, string pathToRecipientPrivateKey, string pathToSenderPublicKey)
+        public DecryptedData DecryptData(EncryptedPacket encryptedPacket, int keyLength, RSAEncryption rsaParams, DigitalSignature digitalSignature, string pathToRecipientPrivateKey, string pathToSenderPublicKey)
         {
             var decryptedSessionKey = rsaParams.DecryptData(encryptedPacket.EncryptedSessionKey, keyLength, pathToRecipientPrivateKey);
 
@@ -46,8 +49,9 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI
             }
 
             var decryptedData = _aes.Decrypt(encryptedPacket.EncryptedData, decryptedSessionKey, encryptedPacket.Iv);
+            var originalFilename = _aes.Decrypt(encryptedPacket.Filename, decryptedSessionKey, encryptedPacket.Iv);
 
-            return decryptedData;
+            return new DecryptedData { FileContents = decryptedData, Filename = Encoding.ASCII.GetString(originalFilename) };
         }
 
         private static bool Compare(byte[] array1, byte[] array2)

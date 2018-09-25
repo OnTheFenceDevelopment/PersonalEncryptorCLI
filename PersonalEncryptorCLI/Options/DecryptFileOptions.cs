@@ -16,8 +16,5 @@ namespace OnTheFenceDevelopment.PersonalEncryptorCLI.Options
 
         [Option('r', "recipientkeypath", HelpText = "Full path to Recipients PRIVATE key (including filename)", Required = true)]
         public string RecipientKeyPath { get; set; }
-
-        [Option('o', "output", HelpText = "Output path for generated decrypted plain text file (including filename)")]
-        public string OutputPath { get; set; }
     }
 }
